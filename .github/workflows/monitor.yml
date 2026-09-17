@@ -1,0 +1,46 @@
+name: Internship Email Monitor
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore state
+        uses: actions/cache@v4
+        with:
+          path: state.db
+          key: email-monitor-state-${{ github.run_id }}
+          restore-keys: email-monitor-state-
+
+      - name: Run monitor
+        env:
+          GMAIL_CREDENTIALS_JSON: ${{ secrets.GMAIL_CREDENTIALS_JSON }}
+          GMAIL_TOKEN_JSON: ${{ secrets.GMAIL_TOKEN_JSON }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m app.worker
+
+      - name: Save state
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: state.db
+          key: email-monitor-state-${{ github.run_id }}

@@ -1,0 +1,14 @@
+credentials.json
+client_secret_*.json
+token.json
+token.pickle
+.env
+*.pyc
+__pycache__/
+.pytest_cache/
+state.json
+state.db
+*.db
+.venv/
+venv/
+env/
