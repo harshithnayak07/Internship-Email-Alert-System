@@ -51,6 +51,11 @@ def authenticate_production():
     creds_dict = json.loads(GMAIL_CREDENTIALS_JSON)
     token_dict = json.loads(GMAIL_TOKEN_JSON)
 
+    if "installed" in creds_dict:
+        creds_dict = creds_dict["installed"]
+    elif "web" in creds_dict:
+        creds_dict = creds_dict["web"]
+
     missing = []
     if not token_dict.get("refresh_token"):
         missing.append("refresh_token (in GMAIL_TOKEN_JSON)")
