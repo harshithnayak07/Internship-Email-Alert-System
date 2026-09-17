@@ -50,6 +50,27 @@ def authenticate_production():
         _fail("GMAIL_TOKEN_JSON not set. Run locally first to generate token.json.")
     creds_dict = json.loads(GMAIL_CREDENTIALS_JSON)
     token_dict = json.loads(GMAIL_TOKEN_JSON)
+
+    missing = []
+    if not token_dict.get("refresh_token"):
+        missing.append("refresh_token (in GMAIL_TOKEN_JSON)")
+    if not token_dict.get("token"):
+        missing.append("token (in GMAIL_TOKEN_JSON)")
+    if not creds_dict.get("client_id"):
+        missing.append("client_id (in GMAIL_CREDENTIALS_JSON)")
+    if not creds_dict.get("client_secret"):
+        missing.append("client_secret (in GMAIL_CREDENTIALS_JSON)")
+    if not creds_dict.get("token_uri"):
+        missing.append("token_uri (in GMAIL_CREDENTIALS_JSON)")
+    if missing:
+        _fail(
+            "Missing required fields:\n  "
+            + "\n  ".join(missing)
+            + "\n\nMake sure GMAIL_CREDENTIALS_JSON has: client_id, client_secret, token_uri"
+            "\nMake sure GMAIL_TOKEN_JSON has: token, refresh_token"
+            "\nCopy the FULL file contents of credentials.json and token.json."
+        )
+
     creds = Credentials(
         token=token_dict.get("token"),
         refresh_token=token_dict.get("refresh_token"),
